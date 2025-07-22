@@ -1,17 +1,56 @@
-{% extends 'default.html' %}
+{% extends "base.html" %}
 {% load custom_filters %}
 
+{% block title %}
+    Все новости
+{% endblock title %}
+
 {% block content %}
-    <h2>Все новости</h2>
-    <ul>
-        {% for post in posts %}
-            <li>
-                <a href="{% url 'news_detail' post.pk %}">{{ post.title|censor }}</a><br>
-                <small>{{ post.created_at|date:"d.m.Y" }}</small><br>
-                <p>{{ post.content|slice:":20"|censor }}...</p>
-            </li>
-        {% empty %}
-            <li>Новостей пока нет.</li>
-        {% endfor %}
-    </ul>
-{% endblock %}
+    <h1>Все новости</h1>
+
+    <!-- Форма фильтра -->
+    <form method="get">
+        {{ filter.form.as_p }}
+        <button type="submit">Фильтровать</button>
+    </form>
+
+    <hr>
+
+    <!-- Список новостей -->
+    {% for post in posts %}
+        <div>
+            <h2>
+                <a href="{% url 'news_detail' post.pk %}">{{ post.title|censor }}</a>
+            </h2>
+            <p><strong>Категории:</strong>
+                {% for category in post.categories.all %}
+                    {{ category.name }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    Нет категорий
+                {% endfor %}
+            </p>
+            <p><strong>Дата:</strong> {{ post.created_at|date:"d.m.Y H:i" }}</p>
+            <p>{{ post.text|truncatewords:30 }}</p>
+        </div>
+        <hr>
+    {% empty %}
+        <p>Нет новостей, соответствующих фильтру.</p>
+    {% endfor %}
+
+<!-- Пагинация -->
+{% if is_paginated %}
+    <div>
+        {% if page_obj.has_previous %}
+            <a href="?{{ query_params }}{% if query_params %}&{% endif %}page=1">Первая</a>
+            <a href="?{{ query_params }}{% if query_params %}&{% endif %}page={{ page_obj.previous_page_number }}">Назад</a>
+        {% endif %}
+
+        <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+
+        {% if page_obj.has_next %}
+            <a href="?{{ query_params }}{% if query_params %}&{% endif %}page={{ page_obj.next_page_number }}">Вперёд</a>
+            <a href="?{{ query_params }}{% if query_params %}&{% endif %}page={{ page_obj.paginator.num_pages }}">Последняя</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock content %}

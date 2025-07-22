@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Редактировать публикацию
+{% endblock %}
+
+{% block content %}
+<h2>Редактировать публикацию</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Сохранить изменения</button>
+</form>
+
+<p>
+    <a href="{% url 'news_detail' pk=object.pk %}">Назад к публикации</a>
+</p>
+{% endblock %}

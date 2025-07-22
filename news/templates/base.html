@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}Мой сайт{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <h1>Заголовок сайта</h1>
+
+        {% if user.is_authenticated %}
+        <p>Здравствуйте, {{ user.username }}!
+		  <form action="{% url 'logout' %}" method="post" style="display:inline;">
+			{% csrf_token %}
+			<button type="submit" style="background:none; border:none; padding:0; color:blue; cursor:pointer;">
+			  Выйти
+			</button>
+		  </form>
+        </p>   
+        {% else %}
+            <p><a href="{% url 'login' %}">Войти</a></p>
+        {% endif %}
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>© 2025 Eugene News Portal</p>
+    </footer>
+</body>
+</html>
