@@ -5,22 +5,25 @@
     <title>{% block title %}Мой сайт{% endblock %}</title>
 </head>
 <body>
-    <header>
-        <h1>Заголовок сайта</h1>
+<header>
+    <h1>Заголовок сайта</h1>
 
+    <nav>
         {% if user.is_authenticated %}
-        <p>Здравствуйте, {{ user.username }}!
-		  <form action="{% url 'logout' %}" method="post" style="display:inline;">
-			{% csrf_token %}
-			<button type="submit" style="background:none; border:none; padding:0; color:blue; cursor:pointer;">
-			  Выйти
-			</button>
-		  </form>
-        </p>   
+            <p>Здравствуйте, {{ user.username }} |
+                <form method="post" action="{% url 'account_logout' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="background:none; border:none; padding:0; cursor:pointer; color:#007bff; text-decoration:underline;">
+                        Выйти
+                    </button>
+                </form>
+            </p>
         {% else %}
-            <p><a href="{% url 'login' %}">Войти</a></p>
+            <a href="{% url 'account_login' %}">Войти</a> |
+            <a href="{% url 'account_signup' %}">Регистрация</a>
         {% endif %}
-    </header>
+    </nav>
+</header>
 
     <main>
         {% block content %}{% endblock %}
@@ -30,4 +33,4 @@
         <p>© 2025 Eugene News Portal</p>
     </footer>
 </body>
-</html>
+</html> 

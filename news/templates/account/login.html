@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load socialaccount %}
+{% providers_media_js %}
+
+{% block content %}
+
+  <h2>{% trans "Login" %}</h2>
+
+  <form method="post" action="{% url 'account_login' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">{% trans "Sign In" %}</button>
+  </form>
+
+  <hr>
+
+  <p><a href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a></p>
+  <p><a href="{% url 'account_signup' %}">{% trans "Don't have an account? Sign up" %}</a></p>
+	
+
+  <h3>Войти через:</h3>
+  {% if socialaccount_providers %}
+    <ul>
+      {% for provider in socialaccount_providers %}
+        <li><a href="{% provider_login_url provider.id %}">Войти через {{ provider.name }}</a></li>
+      {% endfor %}
+	<p>Доступные провайдер: {{ socialaccount_providers }}</p>
+	<p>Сконфигурированные провайдеры: {{ configured_providers }}</p>
+	<p style="color:red;">Это МОЙ шаблон!</p>
+    </ul>
+  {% else %}
+  <ul>
+     <li><a title="Yandex" href="/accounts/yandex/login/?process=login">Yandex</a></li
+</ul>
+	
+  {% endif %}
+{% endblock %}

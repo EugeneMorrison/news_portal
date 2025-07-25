@@ -3,9 +3,16 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
 from django_filters.views import FilterView
-from .models import Post, Comment, Author 
+from .models import Post, Comment, Author
 from .filters import PostFilter
 from .forms import PostForm, NewsForm, CommentForm
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from django.urls import reverse
+
+def is_author(user):
+    return user.groups.filter(name='authors').exists()
 
 class NewsList(ListView):
     model = Post
@@ -54,11 +61,13 @@ class NewsDetail(DetailView):
         context['comment_form'] = form
         return self.render_to_response(context)
 
-class PostCreateView(CreateView):
+
+class PostCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'news/post_form.html'
     success_url = reverse_lazy('news_list')
+    permission_required = ['news.add_post', 'news.view_post']
 
     def form_valid(self, form):
         post = form.save(commit=False)
@@ -73,18 +82,26 @@ class PostCreateView(CreateView):
         post.save()
         return super().form_valid(form)
 
-class PostUpdateView(UpdateView):
-    model = Post
-    form_class = PostForm
-    template_name = 'news/post_form.html'
-    success_url = reverse_lazy('news_list')
 
-class PostDeleteView(DeleteView):
+class PostUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Post
-    template_name = 'news/post_confirm_delete.html'
+    fields = ['title', 'content', 'post_type', 'categories']
+    template_name = 'news/post_edit.html'
     success_url = reverse_lazy('news_list')
+    permission_required = 'news.change_post'
 
-class NewsCreate(CreateView):
+    def get_success_url(self):
+        return reverse('news_detail', kwargs={'pk': self.object.pk})
+
+
+class PostDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Post
+    template_name = 'post_delete.html'
+    success_url = reverse_lazy('news_list')
+    permission_required = 'news.delete_post'
+
+class NewsCreate(PermissionRequiredMixin, CreateView):
+    permission_required = 'news.add_post'  # право на создание поста
     form_class = NewsForm
     model = Post
     template_name = 'news/news_form.html'
